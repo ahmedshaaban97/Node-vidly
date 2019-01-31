@@ -1,3 +1,4 @@
+const joi = require('joi');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -17,9 +18,22 @@ const customerSchema = new Schema({
         type : Number,
         required : true,
         minlength : 3,
-        maxlength : 15,
+        maxlength : 16,
     },
 
 });
 
-module.exports = mongoose.model('Customer',customerSchema);
+
+function validateCustomer(customer) {
+    const schema = {
+        name: joi.string().min(5).max(15).required(),
+        phone: joi.number().integer().required(),
+        isGold: joi.boolean()
+    };
+    return joi.validate(customer, schema);
+}
+
+
+
+module.exports.Customer = mongoose.model('Customer',customerSchema);
+module.exports.validate = validateCustomer;
