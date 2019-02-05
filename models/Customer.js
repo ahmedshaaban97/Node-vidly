@@ -36,4 +36,5 @@ function validateCustomer(customer) {
 
 
 module.exports.Customer = mongoose.model('Customer',customerSchema);
+module.exports.customerSchema = customerSchema;
 module.exports.validate = validateCustomer;
