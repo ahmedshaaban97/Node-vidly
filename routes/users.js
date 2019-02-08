@@ -3,9 +3,17 @@ const bcrypt = require('bcrypt');
 const config =  require('config');
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const {tokenAuth} = require('../middleware/auth')
 const {hashPassword} = require('../helper/hash');
 const {User, validate} = require('../models/User');
 const router = express.Router();
+
+
+router.get('/me',tokenAuth,async(req,res)=>{
+    const user = await User.find({_id : req.user._id}).select('-password');
+    res.send(user);
+});
+
 
 
 router.post('/register', async (req, res) => {
@@ -22,7 +30,7 @@ router.post('/register', async (req, res) => {
         let newUser = new User(_.pick(data, ['name', 'password', 'email']));
         newUser.password = await hashPassword(data.password);
         await newUser.save();
-        const token = jwt.sign({_id: newUser._id}, config.get('jwtPrivateKey'));
+        const token = newUser.genetateToken();
         res.header('auth-token',token).send(_.pick(newUser, ['_id', 'name', 'email']));
     } catch (e) {
         return res.status(400).send('some went wrong')
